@@ -100,7 +100,7 @@ const actors = [{
     'amount': 0
   }]
 }, {
-  'rentalId': '65203b0a-a864-4dea-81e2-e389515752a8',
+  'deliveryId': '65203b0a-a864-4dea-81e2-e389515752a8',
   'payment': [{
     'who': 'shipper',
     'type': 'debit',
@@ -123,7 +123,7 @@ const actors = [{
     'amount': 0
   }]
 }, {
-  'rentalId': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
+  'deliveryId': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
   'payment': [{
     'who': 'shipper',
     'type': 'debit',
@@ -155,7 +155,9 @@ function calculshippingprice (){
       if (truckers[i].id == deliveries[j].truckerId){
         reduction(i,j);
         shippingprice(i,j);
+        commission(i,j);
         deductible(i,j);
+        billactors(i);
       }
     }
   }
@@ -179,7 +181,6 @@ function shippingprice(i,j){
 function commission(i,j){
   var newcommission = deliveries[j].price*30/100;
   deliveries[j].commission.insurance = newcommission /2;
-
   var newdistance = deliveries[j].distance;
   while (newdistance>500){
     deliveries[j].commission.treasury=deliveries[j].commission.treasury+1;
@@ -189,22 +190,36 @@ function commission(i,j){
 };
 
 function deductible(i,j){
-
     if(deliveries[j].options.deductibleReduction==true){
       deliveries[j].options.deductibleamount=200;
       deliveries[j].price=deliveries[i].price+deliveries[j].options.deductibleamount;
-      commission(i,j);
       deliveries[j].commission.convargo= deliveries[j].commission.convargo + deliveries[j].volume;
-
-
     }else{
       deliveries[j].options.deductibleamount=1000;
       deliveries[j].price=deliveries[j].price+deliveries[j].options.deductibleamount;
-      commission(i,j);
     }
-
-
 };
+
+function billactors(i){
+    for(var j=0;j<actors.length;j++){
+      if (deliveries[i].id==actors[j].deliveryId){
+        for (var k=0; k<actors[j].payment.length;k++){
+          if(actors[j].payment[k].who=="shipper"){
+            actors[j].payment[k].amount=deliveries[i].price;
+          }else if (actors[j].payment[k].who=="owner"){
+            actors[j].payment[k].amount = deliveries[i].price - deliveries[i].price*30/100;
+          }else if (actors[j].payment[k].who=="treasury"){
+            actors[j].payment[k].amount = deliveries[i].commission.treasury;
+          }else if (actors[j].payment[k].who=="insurance"){
+            actors[j].payment[k].amount = deliveries[i].commission.insurance;
+          }else if (actors[j].payment[k].who=="convargo"){
+            actors[j].payment[k].amount = deliveries[i].commission.convargo;
+          }
+        }
+      }
+    }
+}
+
 
 calculshippingprice();
 // Ex
