@@ -141,6 +141,22 @@ const actors = [{
   }]
 }];
 
+
+
+// Exercice 1
+
+function calculshippingprice (){
+  for (var i=0; i<truckers.length;i++){
+    for (var j=0; j<deliveries.length;j++){
+      if (truckers[i].id == deliveries[j].truckerId){
+        var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
+        deliveries[j].price = shipping_price;
+      }
+    }
+  }
+};
+calculshippingprice();
+
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
