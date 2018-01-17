@@ -31,7 +31,8 @@ var deliveries = [{
   'distance': 100,
   'volume': 4,
   'options': {
-    'deductibleReduction': false
+    'deductibleReduction': false,
+    'deductibleamount': 0
   },
   'price': 0,
   'commission': {
@@ -46,7 +47,8 @@ var deliveries = [{
   'distance': 650,
   'volume': 12,
   'options': {
-    'deductibleReduction': true
+    'deductibleReduction': true,
+    'deductibleamount': 0
   },
   'price': 0,
   'commission': {
@@ -61,7 +63,8 @@ var deliveries = [{
   'distance': 1250,
   'volume': 30,
   'options': {
-    'deductibleReduction': true
+    'deductibleReduction': true,
+    'deductibleamount': 0
   },
   'price': 0,
   'commission': {
@@ -146,72 +149,64 @@ const actors = [{
 
 
 
-// Exercice 1
-
 function calculshippingprice (){
   for (var i=0; i<truckers.length;i++){
     for (var j=0; j<deliveries.length;j++){
       if (truckers[i].id == deliveries[j].truckerId){
-        var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
-        deliveries[j].price = shipping_price;
+        reduction(i,j);
+        shippingprice(i,j);
+        deductible(i,j);
       }
     }
   }
 };
-//calculshippingprice();
 
-// Exercise 2
-
-function calculshippingprice (){
-  for (var i=0; i<truckers.length;i++){
-    for (var j=0; j<deliveries.length;j++){
-      if (truckers[i].id == deliveries[j].truckerId){
-        var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
-          if (deliveries[j].volume>=5 && deliveries[j].volume<10 ){
-            shipping_price = shipping_price - (shipping_price*10/100);
-          } else if (deliveries[j].volume>=10 && deliveries[j].volume<25){
-            shipping_price = shipping_price - (shipping_price*30/100);
-          } else if (deliveries[j].volume>=25){
-            shipping_price = shipping_price - (shipping_price*50/100);
-          }
-        deliveries[j].price = shipping_price;
-
-      }
-    }
+function reduction(i,j){
+  if (deliveries[j].volume>=5 && deliveries[j].volume<10 ){
+    truckers[i].pricePerKm = truckers[i].pricePerKm - (truckers[i].pricePerKm*10/100);
+  } else if (deliveries[j].volume>=10 && deliveries[j].volume<25){
+    truckers[i].pricePerKm = truckers[i].pricePerKm - (truckers[i].pricePerKm*30/100);
+  } else if (deliveries[j].volume>=25){
+    truckers[i].pricePerKm = truckers[i].pricePerKm - (truckers[i].pricePerKm*50/100);
   }
 };
-//calculshippingprice();
 
-//Exercice 3
-
-function calculshippingprice (){
-  for (var i=0; i<truckers.length;i++){
-    for (var j=0; j<deliveries.length;j++){
-      if (truckers[i].id == deliveries[j].truckerId){
-        var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
-          if (deliveries[j].volume>=5 && deliveries[j].volume<10 ){
-            shipping_price = shipping_price - (shipping_price*10/100);
-          } else if (deliveries[j].volume>=10 && deliveries[j].volume<25){
-            shipping_price = shipping_price - (shipping_price*30/100);
-          } else if (deliveries[j].volume>=25){
-            shipping_price = shipping_price - (shipping_price*50/100);
-          }
-        deliveries[j].price = shipping_price;
-        var newcommission = shipping_price*30/100;
-        deliveries[j].commission.insurance = newcommission /2;
-
-        var newdistance = deliveries[j].distance;
-        while (newdistance>500){
-          deliveries[j].commission.treasury=deliveries[j].commission.treasury+1;
-          newdistance = newdistance - 500;
-        }
-        deliveries[j].commission.convargo = newcommission - deliveries[j].commission.insurance - deliveries[j].commission.treasury;
-      }
-    }
-  }
+function shippingprice(i,j){
+  var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
+  deliveries[j].price = shipping_price;
 };
+
+function commission(i,j){
+  var newcommission = deliveries[j].price*30/100;
+  deliveries[j].commission.insurance = newcommission /2;
+
+  var newdistance = deliveries[j].distance;
+  while (newdistance>500){
+    deliveries[j].commission.treasury=deliveries[j].commission.treasury+1;
+    newdistance = newdistance - 500;
+  }
+  deliveries[j].commission.convargo = newcommission - deliveries[j].commission.insurance - deliveries[j].commission.treasury;
+};
+
+function deductible(i,j){
+
+    if(deliveries[j].options.deductibleReduction==true){
+      deliveries[j].options.deductibleamount=200;
+      deliveries[j].price=deliveries[i].price+deliveries[j].options.deductibleamount;
+      commission(i,j);
+      deliveries[j].commission.convargo= deliveries[j].commission.convargo + deliveries[j].volume;
+
+
+    }else{
+      deliveries[j].options.deductibleamount=1000;
+      deliveries[j].price=deliveries[j].price+deliveries[j].options.deductibleamount;
+      commission(i,j);
+    }
+
+
+};
+
 calculshippingprice();
-
 // Ex
 console.log(truckers);
 console.log(deliveries);
