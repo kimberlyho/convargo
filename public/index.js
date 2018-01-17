@@ -155,7 +155,29 @@ function calculshippingprice (){
     }
   }
 };
+//calculshippingprice();
+
+// Exercise 2
+
+function calculshippingprice (){
+  for (var i=0; i<truckers.length;i++){
+    for (var j=0; j<deliveries.length;j++){
+      if (truckers[i].id == deliveries[j].truckerId){
+        var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
+          if (deliveries[j].volume>=5 && deliveries[j].volume<10 ){
+            shipping_price = shipping_price - (shipping_price*10/100);
+          } else if (deliveries[j].volume>=10 && deliveries[j].volume<25){
+            shipping_price = shipping_price - (shipping_price*30/100);
+          } else if (deliveries[j].volume>=25){
+            shipping_price = shipping_price - (shipping_price*50/100);
+          }
+        deliveries[j].price = shipping_price;
+      }
+    }
+  }
+};
 calculshippingprice();
+
 
 console.log(truckers);
 console.log(deliveries);
