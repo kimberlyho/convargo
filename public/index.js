@@ -36,6 +36,7 @@ var deliveries = [{
   'price': 0,
   'commission': {
     'insurance': 0,
+    'treasury' : 0,
     'convargo': 0
   }
 }, {
@@ -50,6 +51,7 @@ var deliveries = [{
   'price': 0,
   'commission': {
     'insurance': 0,
+    'treasury' : 0,
     'convargo': 0
   }
 }, {
@@ -64,6 +66,7 @@ var deliveries = [{
   'price': 0,
   'commission': {
     'insurance': 0,
+    'treasury' : 0,
     'convargo': 0
   }
 }];
@@ -172,13 +175,44 @@ function calculshippingprice (){
             shipping_price = shipping_price - (shipping_price*50/100);
           }
         deliveries[j].price = shipping_price;
+
+      }
+    }
+  }
+};
+//calculshippingprice();
+
+//Exercice 3
+
+function calculshippingprice (){
+  for (var i=0; i<truckers.length;i++){
+    for (var j=0; j<deliveries.length;j++){
+      if (truckers[i].id == deliveries[j].truckerId){
+        var shipping_price = (deliveries[j].distance * truckers[i].pricePerKm) + (deliveries[j].volume * truckers[i].pricePerVolume);
+          if (deliveries[j].volume>=5 && deliveries[j].volume<10 ){
+            shipping_price = shipping_price - (shipping_price*10/100);
+          } else if (deliveries[j].volume>=10 && deliveries[j].volume<25){
+            shipping_price = shipping_price - (shipping_price*30/100);
+          } else if (deliveries[j].volume>=25){
+            shipping_price = shipping_price - (shipping_price*50/100);
+          }
+        deliveries[j].price = shipping_price;
+        var newcommission = shipping_price*30/100;
+        deliveries[j].commission.insurance = newcommission /2;
+
+        var newdistance = deliveries[j].distance;
+        while (newdistance>500){
+          deliveries[j].commission.treasury=deliveries[j].commission.treasury+1;
+          newdistance = newdistance - 500;
+        }
+        deliveries[j].commission.convargo = newcommission - deliveries[j].commission.insurance - deliveries[j].commission.treasury;
       }
     }
   }
 };
 calculshippingprice();
 
-
+// Ex
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
